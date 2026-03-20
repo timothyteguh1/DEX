@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Blokpedia Terminal</title>
+    <title>Login - Blockped Terminal</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -29,8 +29,7 @@
         
         <div class="text-center mb-10">
             <h1 class="text-4xl font-extrabold tracking-tight flex items-center justify-center gap-3 mb-2">
-                <span class="text-[#20d981] drop-shadow-[0_0_15px_rgba(32,217,129,0.5)]">📊</span> 
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">BLOKPEDIA</span>
+                <img src="{{ asset('logo-blokpedia.png') }}" class="w-8 h-8 rounded-full" alt="Blockped Icon"> BLOCKPED
             </h1>
             <p class="text-gray-500 font-medium text-sm">Akses Private Dashboard Terminal</p>
         </div>

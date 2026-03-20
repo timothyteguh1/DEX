@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blokpedia - Dashboard Trading</title>
+    <title>Blockped - Dashboard Trading</title>
     <link rel="icon" type="image/png" href="{{ asset('logo-blokpedia.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -79,24 +79,34 @@
         }
 
         /* Tambahan: Animasi Transisi Halus Loading Screen */
-        .fade-out { opacity: 0; pointer-events: none; transition: opacity 0.4s ease-out; }
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease-out;
+        }
     </style>
 </head>
 
 <body class="p-2 md:p-3 font-sans h-screen flex flex-col overflow-hidden relative">
 
-    <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0b0e14] transition-opacity duration-300">
-        <svg class="animate-spin h-12 w-12 text-[#20d981] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    <div id="loading-screen"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0b0e14] transition-opacity duration-300">
+        <svg class="animate-spin h-12 w-12 text-[#20d981] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+            </circle>
+            <path class="opacity-80" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
         </svg>
-        <span class="text-[#20d981] font-black tracking-widest uppercase text-sm animate-pulse">Menyiapkan Terminal...</span>
+        <span class="text-[#20d981] font-black tracking-widest uppercase text-sm animate-pulse">Menyiapkan
+            Terminal...</span>
     </div>
 
     <div class="flex justify-between items-center pb-3 mb-3 border-b ds-border shrink-0">
         <div class="flex items-center gap-3">
             <h1 class="text-xl font-black text-white tracking-wide flex items-center gap-2">
-                <span class="text-[#20d981]">📊</span> BLOKPEDIA
+                <img src="{{ asset('logo-blokpedia.png') }}" class="w-8 h-8 rounded-full" alt="Blockped Icon"> BLOCKPED
             </h1>
             <span
                 class="text-[9px] bg-green-900/30 text-[#20d981] border border-green-800 px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-widest font-bold">
@@ -108,7 +118,8 @@
                 <span class="text-xs font-bold text-white leading-tight">{{ Auth::user()->name }}</span>
                 <span class="text-[9px] text-green-400 font-bold tracking-widest uppercase">Member Aktif</span>
             </div>
-            <button onclick="openProfileModal()" title="Edit Profil" class="bg-blue-900/20 hover:bg-blue-900 text-blue-500 hover:text-white border border-blue-900/50 px-3 py-1.5 rounded text-sm font-bold transition mr-2">
+            <button onclick="openProfileModal()" title="Edit Profil"
+                class="bg-blue-900/20 hover:bg-blue-900 text-blue-500 hover:text-white border border-blue-900/50 px-3 py-1.5 rounded text-sm font-bold transition mr-2">
                 ⚙️
             </button>
 
@@ -146,67 +157,84 @@
         </div>
     @endif
     @if ($errors->any())
-        <div id="alert-error" class="bg-red-900/30 border border-red-800 text-red-400 p-2 rounded text-xs font-bold mb-3 shrink-0 flex justify-between items-center">
+        <div id="alert-error"
+            class="bg-red-900/30 border border-red-800 text-red-400 p-2 rounded text-xs font-bold mb-3 shrink-0 flex justify-between items-center">
             <span>⚠️ {{ $errors->first() }}</span>
-            <button onclick="document.getElementById('alert-error').remove()" class="text-red-400 hover:text-white">✖</button>
+            <button onclick="document.getElementById('alert-error').remove()"
+                class="text-red-400 hover:text-white">✖</button>
         </div>
     @endif
 
     <div class="flex-grow grid grid-cols-1 xl:grid-cols-2 gap-3 overflow-y-auto pb-4" id="charts-container">
     </div>
-<div id="profileModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <div id="profileModal"
+        class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="relative max-w-md w-full ds-bg-panel border ds-border p-6 rounded-lg shadow-2xl">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
+            <button onclick="closeProfileModal()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
             <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                 <span class="ds-text-green">⚙️</span> Edit Data Profil
             </h2>
-            
+
             <form action="{{ route('profile.update') }}" method="POST" onsubmit="showLoading()">
                 @csrf
                 @method('PUT')
-                
+
                 <div class="mb-4">
-                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">Nama Lengkap</label>
-                    <input type="text" name="name" value="{{ Auth::user()->name }}" required class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
-                </div>
-                
-                <div class="mb-4">
-                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">No WhatsApp</label>
-                    <input type="text" name="no_hp" value="{{ Auth::user()->no_hp }}" required class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
+                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">Nama
+                        Lengkap</label>
+                    <input type="text" name="name" value="{{ Auth::user()->name }}" required
+                        class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
                 </div>
 
                 <div class="mb-4">
-                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">Password Baru <span class="text-[9px] text-red-400">(Opsional)</span></label>
-                    <input type="password" name="password" placeholder="Kosongkan jika tidak ingin diubah" class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
+                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">No
+                        WhatsApp</label>
+                    <input type="text" name="no_hp" value="{{ Auth::user()->no_hp }}" required
+                        class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">Password Baru
+                        <span class="text-[9px] text-red-400">(Opsional)</span></label>
+                    <input type="password" name="password" placeholder="Kosongkan jika tidak ingin diubah"
+                        class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
                 </div>
 
                 <div class="mb-6">
-                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">Ulangi Password Baru</label>
-                    <input type="password" name="password_confirmation" placeholder="Ketik ulang password baru" class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
+                    <label class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1 block">Ulangi Password
+                        Baru</label>
+                    <input type="password" name="password_confirmation" placeholder="Ketik ulang password baru"
+                        class="w-full bg-[#0b0e14] text-white border ds-border rounded p-2.5 outline-none focus:border-[#20d981] transition">
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded transition shadow-lg text-sm uppercase tracking-widest">
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded transition shadow-lg text-sm uppercase tracking-widest">
                     Simpan Perubahan
                 </button>
             </form>
         </div>
     </div>
-<script>
+    <script>
         const savedCoins = @json($savedCoins);
         const csrfToken = '{{ csrf_token() }}';
         let activeCharts = [];
-        let fetchIntervals = {}; 
+        let fetchIntervals = {};
 
         function showLoading() {
             const loader = document.getElementById('loading-screen');
             loader.style.display = 'flex';
-            setTimeout(() => { loader.classList.remove('fade-out'); }, 10);
+            setTimeout(() => {
+                loader.classList.remove('fade-out');
+            }, 10);
         }
 
         function hideLoading() {
             const loader = document.getElementById('loading-screen');
             loader.classList.add('fade-out');
-            setTimeout(() => { loader.style.display = 'none'; }, 400);
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 400);
         }
 
         // FUNGSI BARU: Simpan status layar ke Database, menggantikan LocalStorage
@@ -217,7 +245,9 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({ is_active: isActive })
+                body: JSON.stringify({
+                    is_active: isActive
+                })
             }).catch(err => console.error("Gagal sinkronisasi layar"));
         }
 
@@ -249,14 +279,15 @@
             if (activeCharts.includes(coin.id)) return;
 
             activeCharts.push(coin.id);
-            
+
             // Simpan status layar TERBUKA ke database
             toggleCoinState(coin.id, true);
 
             const container = document.getElementById('charts-container');
             const card = document.createElement('div');
 
-            card.className = 'w-full flex flex-col lg:flex-row border ds-border rounded bg-[#0b0e14] h-[480px] overflow-hidden shadow-lg';
+            card.className =
+                'w-full flex flex-col lg:flex-row border ds-border rounded bg-[#0b0e14] h-[480px] overflow-hidden shadow-lg';
             card.id = `chart-card-${coin.id}`;
 
             card.innerHTML = `
@@ -277,28 +308,30 @@
             fetchDataForInfoPanel(coin);
             fetchIntervals[coin.id] = setInterval(() => {
                 fetchDataForInfoPanel(coin);
-            }, 10000); 
+            }, 10000);
         }
 
         // Fungsi Modal Profil
         function openProfileModal() {
             document.getElementById('profileModal').classList.remove('hidden');
         }
-        
+
         function closeProfileModal() {
             document.getElementById('profileModal').classList.add('hidden');
         }
-        
+
         document.getElementById('profileModal').addEventListener('click', function(e) {
             if (e.target === this) closeProfileModal();
         });
 
         function fetchDataForInfoPanel(coin) {
-            const pairUrl = `https://api.dexscreener.com/latest/dex/pairs/${coin.chain_id.toLowerCase()}/${coin.pair_address}`;
+            const pairUrl =
+                `https://api.dexscreener.com/latest/dex/pairs/${coin.chain_id.toLowerCase()}/${coin.pair_address}`;
             fetch(pairUrl)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.pairs && Array.isArray(data.pairs) && data.pairs.length > 0 && data.pairs[0].liquidity?.usd > 0) {
+                    if (data.pairs && Array.isArray(data.pairs) && data.pairs.length > 0 && data.pairs[0].liquidity
+                        ?.usd > 0) {
                         renderInfoPanel(coin.id, data.pairs[0]);
                     } else {
                         fetchFallbackToken(coin);
@@ -373,7 +406,10 @@
             const h6Change = pairData.priceChange?.h6 || 0;
             const h24Change = pairData.priceChange?.h24 || 0;
 
-            const txns = pairData.txns?.h24 || { buys: 0, sells: 0 };
+            const txns = pairData.txns?.h24 || {
+                buys: 0,
+                sells: 0
+            };
             const vol = pairData.volume?.h24 || 0;
             const liquidity = pairData.liquidity?.usd || 0;
             const fdv = pairData.fdv || 0;
@@ -528,7 +564,7 @@
 
             document.getElementById(`chart-card-${coinId}`)?.remove();
             activeCharts = activeCharts.filter(id => id !== coinId);
-            
+
             // Simpan status layar DITUTUP ke database
             toggleCoinState(coinId, false);
         }
