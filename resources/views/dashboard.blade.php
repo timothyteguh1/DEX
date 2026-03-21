@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blockped - Dashboard Trading</title>
-    <link rel="icon" type="image/png" href="{{ asset('logo-blokpedia.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo-blockped.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -103,51 +103,51 @@
             Terminal...</span>
     </div>
 
-    <div class="flex justify-between items-center pb-3 mb-3 border-b ds-border shrink-0">
-        <div class="flex items-center gap-3">
+    <div class="flex flex-col md:flex-row justify-between items-center pb-3 mb-3 border-b ds-border shrink-0 gap-4 md:gap-0">
+        
+        <div class="flex items-center gap-3 w-full md:w-1/3 justify-between md:justify-start">
             <h1 class="text-xl font-black text-white tracking-wide flex items-center gap-2">
-                <img src="{{ asset('logo-blokpedia.png') }}" class="w-8 h-8 rounded-full" alt="Blockped Icon"> BLOCKPED
+                <img src="{{ asset('logo-blockped.png') }}" class="h-7 w-auto" alt="Blockped Terminal">
             </h1>
-            <span
-                class="text-[9px] bg-green-900/30 text-[#20d981] border border-green-800 px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-widest font-bold">
+            <span class="text-[9px] bg-green-900/30 text-[#20d981] border border-green-800 px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-widest font-bold">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#20d981] animate-pulse"></span> Live
             </span>
         </div>
-        <div class="flex gap-3 items-center">
-            <div class="hidden md:flex flex-col text-right mr-2 border-r ds-border pr-4">
-                <span class="text-xs font-bold text-white leading-tight">{{ Auth::user()->name }}</span>
-                <span class="text-[9px] text-green-400 font-bold tracking-widest uppercase">Member Aktif</span>
-            </div>
-            <button onclick="openProfileModal()" title="Edit Profil"
-                class="bg-blue-900/20 hover:bg-blue-900 text-blue-500 hover:text-white border border-blue-900/50 px-3 py-1.5 rounded text-sm font-bold transition mr-2">
-                ⚙️
-            </button>
 
-            <form action="{{ route('logout') }}" method="POST" class="m-0" onsubmit="showLoading()">
-                @csrf
-                <button type="submit" title="Keluar"
-                    class="bg-red-900/20 hover:bg-red-900 text-red-500 hover:text-white border border-red-900/50 px-3 py-1.5 rounded text-sm font-bold transition">
-                    ⎋
-                </button>
-            </form>
-            <select id="coin-selector"
-                class="p-1.5 px-3 rounded text-sm ds-bg-panel text-white border ds-border focus:border-[#20d981] outline-none font-semibold cursor-pointer">
+        <div class="flex gap-2 items-center w-full md:w-1/3 justify-center flex-wrap md:flex-nowrap">
+            <select id="coin-selector" class="p-1.5 px-3 rounded text-sm ds-bg-panel text-white border ds-border focus:border-[#20d981] outline-none font-semibold cursor-pointer w-full md:w-auto">
                 <option value="" disabled selected>-- Pilih Koin Watchlist --</option>
                 @foreach ($savedCoins as $coin)
                     <option value="{{ $coin->id }}">{{ $coin->name }} ({{ $coin->symbol }})</option>
                 @endforeach
             </select>
-            <button id="add-btn"
-                class="ds-bg-green hover:bg-[#1bb86d] text-black font-bold px-4 py-1.5 rounded text-sm transition shadow-[0_0_10px_rgba(32,217,129,0.2)]">
+            <button id="add-btn" class="ds-bg-green hover:bg-[#1bb86d] text-black font-bold px-4 py-1.5 rounded text-sm transition shadow-[0_0_10px_rgba(32,217,129,0.2)] whitespace-nowrap">
                 + Buka Koin
             </button>
-            <a href="/discover" onclick="showLoading()"
-                class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-bold transition">
+            <a href="/discover" onclick="showLoading()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded text-sm font-bold transition whitespace-nowrap">
                 Cari Baru
             </a>
         </div>
-    </div>
 
+        <div class="flex gap-3 items-center w-full md:w-1/3 justify-end">
+            <div class="hidden md:flex flex-col text-right mr-2 border-r ds-border pr-4">
+                <span class="text-xs font-bold text-white leading-tight">{{ Auth::user()->name }}</span>
+                <span class="text-[9px] text-green-400 font-bold tracking-widest uppercase">Member Aktif</span>
+            </div>
+            
+            <button onclick="openProfileModal()" title="Edit Profil" class="bg-blue-900/20 hover:bg-blue-900 text-blue-500 hover:text-white border border-blue-900/50 px-3 py-1.5 rounded text-sm font-bold transition">
+                ⚙️
+            </button>
+
+            <form action="{{ route('logout') }}" method="POST" class="m-0" onsubmit="showLoading()">
+                @csrf
+                <button type="submit" title="Keluar" class="bg-red-900/20 hover:bg-red-900 text-red-500 hover:text-white border border-red-900/50 px-4 py-1.5 rounded text-sm font-bold transition uppercase tracking-wider">
+                    Logout
+                </button>
+            </form>
+        </div>
+
+    </div>
     @if (session('success'))
         <div id="alert-success"
             class="bg-[#20d981]/10 border border-[#20d981] text-[#20d981] p-2 rounded text-xs font-bold mb-3 shrink-0 flex justify-between items-center">

@@ -23,13 +23,26 @@ class AuthController extends Controller
         
         $registerInfo = $setting ? $setting->value : 'Silakan transfer biaya registrasi sebesar Rp 150.000 ke rekening BCA 123456789 a/n Blokpedia, lalu unggah bukti transfer pada form di bawah ini.';
 
-        // WAJIB ADA compact('registerInfo') agar variabelnya terkirim ke view
-        return view('auth.register', compact('registerInfo'));
+        // Bikin Captcha Manual: Dua angka acak
+        $num1 = rand(1, 9);
+        $num2 = rand(1, 9);
+        $captchaResult = $num1 + $num2;
+
+        // Simpan hasil aslinya di Session untuk dicek nanti saat disubmit
+        session()->put('captcha_result', $captchaResult);
+
+        // WAJIB ADA compact('registerInfo', 'num1', 'num2') agar variabelnya terkirim ke view
+        return view('auth.register', compact('registerInfo', 'num1', 'num2'));
     }
 
     public function register(RegisterUserRequest $request)
     {
         $validated = $request->validated();
+
+        // CEK CAPTCHA MANUAL
+        if ($request->input('captcha_answer') != session('captcha_result')) {
+            return back()->withErrors(['captcha_answer' => 'Jawaban keamanan matematika salah. Silakan coba lagi.'])->withInput();
+        }
 
         // 1. Simpan file gambar dengan aman ke folder storage/app/public/proofs
         $proofPath = $request->file('payment_proof')->store('proofs', 'public');
@@ -91,6 +104,7 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+    
     // Fungsi baru untuk Update Profil User
     public function updateProfile(Request $request)
     {
@@ -117,6 +131,4 @@ class AuthController extends Controller
 
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
-    
-    
 }

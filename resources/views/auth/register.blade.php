@@ -42,7 +42,7 @@
 
         <div class="text-center mb-5">
             <h1 class="text-2xl font-extrabold tracking-tight flex items-center justify-center gap-2 mb-1">
-                <img src="{{ asset('logo-blokpedia.png') }}"
+                <img src="{{ asset('logo-blockped.png') }}"
                     class="w-8 h-8 drop-shadow-[0_0_10px_rgba(32,217,129,0.5)] rounded-full" alt="Blockped Icon">
                 <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">BLOCKPED</span>
             </h1>
@@ -122,6 +122,20 @@
                     class="block w-full text-[11px] text-gray-400 
                     file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-extrabold file:bg-[#20d981]/10 file:text-[#20d981] hover:file:bg-[#20d981]/20 file:transition-colors file:cursor-pointer
                     border border-gray-800 rounded-xl bg-[#05070a] focus:outline-none focus:ring-2 focus:ring-[#20d981]/50 transition-all cursor-pointer">
+            </div>
+
+            <div class="group mt-0.5">
+                <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1.5 block group-focus-within:text-[#20d981] transition-colors">Verifikasi Keamanan (Captcha)</label>
+                <div class="flex items-center gap-3">
+                    <div class="bg-[#151924] border border-gray-800 rounded-xl p-2 flex items-center justify-center gap-2 h-10 px-4 select-none w-1/3">
+                        <span class="text-[#20d981] font-black text-lg">{{ $num1 }}</span>
+                        <span class="text-white font-bold text-lg">+</span>
+                        <span class="text-[#20d981] font-black text-lg">{{ $num2 }}</span>
+                        <span class="text-gray-500 font-bold text-lg">=</span>
+                    </div>
+                    <input type="number" name="captcha_answer" required placeholder="Berapa hasilnya?" 
+                        class="w-2/3 bg-[#05070a] text-white border border-gray-800 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-[#20d981]/50 focus:border-[#20d981] transition-all placeholder-gray-700 h-10">
+                </div>
             </div>
 
             <button type="submit"
