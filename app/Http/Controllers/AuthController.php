@@ -13,14 +13,13 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        return view('auth.login'); // Nanti kita buat UI-nya
+        return view('auth.login');
     }
 
     public function showRegister()
     {
-        // Cara yang lebih aman (anti-error) untuk mengambil data dari database
         $setting = \App\Models\Setting::where('key', 'register_info')->first();
-        
+
         $registerInfo = $setting ? $setting->value : 'Silakan transfer biaya registrasi sebesar Rp 150.000 ke rekening BCA 123456789 a/n Blokpedia, lalu unggah bukti transfer pada form di bawah ini.';
 
         // Bikin Captcha Manual: Dua angka acak
@@ -28,31 +27,29 @@ class AuthController extends Controller
         $num2 = rand(1, 9);
         $captchaResult = $num1 + $num2;
 
-        // Simpan hasil aslinya di Session untuk dicek nanti saat disubmit
+        // Simpan hasil aslinya di Session untuk dicek oleh ValidCaptcha Rule
         session()->put('captcha_result', $captchaResult);
 
-        // WAJIB ADA compact('registerInfo', 'num1', 'num2') agar variabelnya terkirim ke view
         return view('auth.register', compact('registerInfo', 'num1', 'num2'));
     }
 
     public function register(RegisterUserRequest $request)
     {
+        // Semua validasi (termasuk captcha) sudah ditangani di RegisterUserRequest
         $validated = $request->validated();
 
-        // CEK CAPTCHA MANUAL
-        if ($request->input('captcha_answer') != session('captcha_result')) {
-            return back()->withErrors(['captcha_answer' => 'Jawaban keamanan matematika salah. Silakan coba lagi.'])->withInput();
-        }
+        // Hapus session captcha setelah validasi berhasil agar tidak bisa di-reuse
+        session()->forget('captcha_result');
 
         // 1. Simpan file gambar dengan aman ke folder storage/app/public/proofs
         $proofPath = $request->file('payment_proof')->store('proofs', 'public');
 
         // 2. Buat User baru (otomatis berstatus 'pending' sesuai default database)
         User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'no_hp' => $validated['no_hp'],
-            'password' => Hash::make($validated['password']),
+            'name'          => $validated['name'],
+            'email'         => $validated['email'],
+            'no_hp'         => $validated['no_hp'],
+            'password'      => Hash::make($validated['password']),
             'payment_proof' => $proofPath,
         ]);
 
@@ -63,7 +60,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
@@ -71,13 +68,12 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
-            // Cek Alur Login berdasarkan Standar Klien Anda
             if ($user->isAdmin()) {
                 return redirect()->route('admin.dashboard');
             }
 
             if ($user->isApproved()) {
-                return redirect()->route('dashboard'); // Ke terminal DexScreener
+                return redirect()->route('dashboard');
             }
 
             // Jika status masih pending atau rejected
@@ -85,8 +81,8 @@ class AuthController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            $pesanError = $user->status === User::STATUS_PENDING 
-                ? 'Akun Anda sedang ditinjau oleh Admin. Mohon tunggu.' 
+            $pesanError = $user->status === User::STATUS_PENDING
+                ? 'Akun Anda sedang ditinjau oleh Admin. Mohon tunggu.'
                 : 'Maaf, pendaftaran Anda ditolak. Silakan hubungi Admin.';
 
             return back()->withErrors(['email' => $pesanError]);
@@ -104,25 +100,20 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
-    
-    // Fungsi baru untuk Update Profil User
+
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
 
-        // Validasi input
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'no_hp' => 'required|string|max:20',
-            // Password opsional, hanya diubah kalau diisi
-            'password' => 'nullable|min:6|confirmed', 
+            'name'     => 'required|string|max:255',
+            'no_hp'    => 'required|string|max:20',
+            'password' => 'nullable|min:6|confirmed',
         ]);
 
-        // Update data
-        $user->name = $validated['name'];
+        $user->name  = $validated['name'];
         $user->no_hp = $validated['no_hp'];
-        
-        // Jika form password diisi, update passwordnya
+
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
