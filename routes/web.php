@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CoinController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SuperAdminController; // ← Import Controller Superadmin
 use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsSuperAdmin; // ← Import Middleware Superadmin
 use App\Http\Middleware\CheckUserStatus;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-// Solusi: tambah import di atas file web.php
-use Illuminate\Support\Facades\Auth;  // ← ini yang kurang
+use Illuminate\Support\Facades\Auth;  
 
 // =============================================
 // GUEST ROUTES
@@ -23,21 +24,15 @@ Route::middleware('guest')->group(function () {
 
 // =============================================
 // EMAIL VERIFICATION ROUTES
-// (butuh login, tapi belum perlu email verified)
 // =============================================
 Route::middleware('auth')->group(function () {
 
-    // Halaman "Cek Email Anda" — user landing di sini setelah register
     Route::get('/email/verify', [AuthController::class, 'verificationNotice'])
         ->name('verification.notice');
 
-    // Link verifikasi yang diklik dari email
-    // User sudah login (otomatis saat register), jadi ini langsung bisa diproses
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill(); // Tandai email sebagai verified
+        $request->fulfill(); 
 
-        // Logout user — karena statusnya masih pending, belum bisa akses dashboard
-        // User akan login manual setelah admin approve
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -46,7 +41,6 @@ Route::middleware('auth')->group(function () {
             ->with('success', '✅ Email berhasil diverifikasi! Akun Anda sedang menunggu persetujuan Admin.');
     })->middleware('signed')->name('verification.verify');
 
-    // Kirim ulang email verifikasi (max 3x per menit)
     Route::post('/email/resend', [AuthController::class, 'resendVerification'])
         ->middleware('throttle:3,1')
         ->name('verification.send');
@@ -73,4 +67,14 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->group(function () 
     Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::put('/user/{user}/status', [AdminController::class, 'updateStatus'])->name('admin.user.status');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+});
+
+// =============================================
+// SUPERADMIN ROUTES
+// =============================================
+// Kita gunakan IsSuperAdmin::class (bukan string 'is_superadmin')
+Route::middleware(['auth', IsSuperAdmin::class])->prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/logs', [SuperAdminController::class, 'logs'])->name('logs');
+    Route::delete('/users/{user}', [SuperAdminController::class, 'destroyUser'])->name('user.destroy');
+    Route::put('/users/{user}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('user.reset_password');
 });

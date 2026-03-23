@@ -11,6 +11,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
+    // --- DAFTAR KONSTANTA ---
+    public const ROLE_SUPERADMIN = 'superadmin';
     public const ROLE_ADMIN  = 'admin';
     public const ROLE_USER   = 'user';
 
@@ -42,9 +44,19 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    // =========================================================
+    // PASTIKAN FUNGSI-FUNGSI INI BERADA DI DALAM CLASS USER
+    // =========================================================
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPERADMIN;
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        // Superadmin juga memiliki hak sebagai Admin
+        return $this->role === self::ROLE_ADMIN || $this->role === self::ROLE_SUPERADMIN;
     }
 
     public function isApproved(): bool
@@ -52,8 +64,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->status === self::STATUS_APPROVED;
     }
 
+    // --- RELASI DATABASE ---
+
     public function coins()
     {
         return $this->hasMany(Coin::class);
     }
-}
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+} // <--- INI ADALAH KURUNG KURAWAL PENUTUP CLASS USER (JANGAN ADA KODE DI BAWAH INI)
