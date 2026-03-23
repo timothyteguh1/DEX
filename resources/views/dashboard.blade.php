@@ -167,6 +167,7 @@
 
     <div class="flex-grow grid grid-cols-1 xl:grid-cols-2 gap-3 overflow-y-auto pb-4" id="charts-container">
     </div>
+    
     <div id="profileModal"
         class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="relative max-w-md w-full ds-bg-panel border ds-border p-6 rounded-lg shadow-2xl">
@@ -215,11 +216,24 @@
             </form>
         </div>
     </div>
+    
     <script>
         const savedCoins = @json($savedCoins);
         const csrfToken = '{{ csrf_token() }}';
         let activeCharts = [];
         let fetchIntervals = {};
+
+        // --- INJEKSI LOGIKA TIMEFRAME MULAI DI SINI ---
+        let activeTimeframes = {}; 
+        let coinDataStore = {}; 
+
+        function changeTimeframe(coinId, tf) {
+            activeTimeframes[coinId] = tf;
+            if (coinDataStore[coinId]) {
+                renderInfoPanel(coinId, coinDataStore[coinId]);
+            }
+        }
+        // --- INJEKSI LOGIKA TIMEFRAME SELESAI ---
 
         function showLoading() {
             const loader = document.getElementById('loading-screen');
@@ -283,6 +297,9 @@
             // Simpan status layar TERBUKA ke database
             toggleCoinState(coin.id, true);
 
+            // --- SET DEFAULT TIMEFRAME KE 24 JAM SAAT DIBUKA ---
+            if (!activeTimeframes[coin.id]) activeTimeframes[coin.id] = 'h24';
+
             const container = document.getElementById('charts-container');
             const card = document.createElement('div');
 
@@ -332,6 +349,7 @@
                 .then(data => {
                     if (data.pairs && Array.isArray(data.pairs) && data.pairs.length > 0 && data.pairs[0].liquidity
                         ?.usd > 0) {
+                        coinDataStore[coin.id] = data.pairs[0]; // SIMPAN DATA KE MEMORI UNTUK TIMEFRAME
                         renderInfoPanel(coin.id, data.pairs[0]);
                     } else {
                         fetchFallbackToken(coin);
@@ -347,6 +365,7 @@
                     let pairsArray = Array.isArray(data) ? data : (data.pairs || []);
                     if (pairsArray.length > 0) {
                         let bestPair = pairsArray.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+                        coinDataStore[coin.id] = bestPair;  // SIMPAN DATA KE MEMORI UNTUK TIMEFRAME
                         renderInfoPanel(coin.id, bestPair);
                     } else {
                         showError(coin.id, coin, "Tidak ada likuiditas aktif.");
@@ -406,11 +425,13 @@
             const h6Change = pairData.priceChange?.h6 || 0;
             const h24Change = pairData.priceChange?.h24 || 0;
 
-            const txns = pairData.txns?.h24 || {
-                buys: 0,
-                sells: 0
-            };
-            const vol = pairData.volume?.h24 || 0;
+            // --- AMBIL TIMEFRAME YANG AKTIF ---
+            const tf = activeTimeframes[coinId] || 'h24';
+
+            // --- UBAH H24 MENJADI DINAMIS BERDASARKAN TIMEFRAME YANG DIPILIH ---
+            const txns = pairData.txns?.[tf] || { buys: 0, sells: 0 };
+            const vol = pairData.volume?.[tf] || 0;
+            
             const liquidity = pairData.liquidity?.usd || 0;
             const fdv = pairData.fdv || 0;
             const marketCap = pairData.marketCap || pairData.fdv || 0;
@@ -434,6 +455,11 @@
 
             const colorClass = (val) => val >= 0 ? 'ds-text-green' : 'ds-text-red';
             const sign = (val) => val > 0 ? '+' : '';
+
+            // --- CSS KONDISIONAL UNTUK TOMBOL ---
+            const getBtnClass = (currentTf) => {
+                return tf === currentTf ? 'bg-[#1e2433] border-b-2 border-[#20d981]' : 'hover:bg-[#1e2433] cursor-pointer';
+            };
 
             infoDiv.innerHTML = `
                 ${renderHeaderUI(coin, pairData)}
@@ -464,21 +490,21 @@
                     </div>
                 </div>
 
-                <div class="flex border ds-border rounded overflow-hidden text-center bg-[#151924] shrink-0 live-update">
-                    <div class="flex-1 py-1.5 border-r ds-border">
-                        <div class="text-[9px] ds-text-gray mb-0.5">5M</div>
+                <div class="flex border ds-border rounded overflow-hidden text-center bg-[#151924] shrink-0 live-update select-none">
+                    <div onclick="changeTimeframe(${coinId}, 'm5')" class="flex-1 py-1.5 border-r ds-border transition ${getBtnClass('m5')}">
+                        <div class="text-[9px] ${tf === 'm5' ? 'text-white' : 'ds-text-gray'} font-bold mb-0.5">5M</div>
                         <div class="text-[12px] font-bold ${colorClass(m5Change)} leading-none">${sign(m5Change)}${m5Change}%</div>
                     </div>
-                    <div class="flex-1 py-1.5 border-r ds-border">
-                        <div class="text-[9px] ds-text-gray mb-0.5">1H</div>
+                    <div onclick="changeTimeframe(${coinId}, 'h1')" class="flex-1 py-1.5 border-r ds-border transition ${getBtnClass('h1')}">
+                        <div class="text-[9px] ${tf === 'h1' ? 'text-white' : 'ds-text-gray'} font-bold mb-0.5">1H</div>
                         <div class="text-[12px] font-bold ${colorClass(h1Change)} leading-none">${sign(h1Change)}${h1Change}%</div>
                     </div>
-                    <div class="flex-1 py-1.5 border-r ds-border">
-                        <div class="text-[9px] ds-text-gray mb-0.5">6H</div>
+                    <div onclick="changeTimeframe(${coinId}, 'h6')" class="flex-1 py-1.5 border-r ds-border transition ${getBtnClass('h6')}">
+                        <div class="text-[9px] ${tf === 'h6' ? 'text-white' : 'ds-text-gray'} font-bold mb-0.5">6H</div>
                         <div class="text-[12px] font-bold ${colorClass(h6Change)} leading-none">${sign(h6Change)}${h6Change}%</div>
                     </div>
-                    <div class="flex-1 py-1.5 bg-[#1e2433]">
-                        <div class="text-[9px] text-white font-bold mb-0.5">24H</div>
+                    <div onclick="changeTimeframe(${coinId}, 'h24')" class="flex-1 py-1.5 transition ${getBtnClass('h24')}">
+                        <div class="text-[9px] ${tf === 'h24' ? 'text-white' : 'ds-text-gray'} font-bold mb-0.5">24H</div>
                         <div class="text-[12px] font-bold ${colorClass(h24Change)} leading-none">${sign(h24Change)}${h24Change}%</div>
                     </div>
                 </div>
@@ -486,7 +512,7 @@
                 <div class="flex flex-col gap-1.5 shrink-0 live-update">
                     <div class="flex items-center gap-3 border-b border-[#1e2433] pb-1.5">
                         <div class="w-[35%] text-left">
-                            <div class="text-[9px] ds-text-gray uppercase tracking-wide mb-0.5">TXNS</div>
+                            <div class="text-[9px] ds-text-gray uppercase tracking-wide mb-0.5">TXNS (${tf.toUpperCase()})</div>
                             <div class="text-[12px] font-bold text-white leading-none">${totalTxns.toLocaleString()}</div>
                         </div>
                         <div class="w-[65%]">
@@ -502,7 +528,7 @@
 
                     <div class="flex items-center gap-3 border-b border-[#1e2433] pb-1.5">
                         <div class="w-[35%] text-left">
-                            <div class="text-[9px] ds-text-gray uppercase tracking-wide mb-0.5">VOLUME</div>
+                            <div class="text-[9px] ds-text-gray uppercase tracking-wide mb-0.5">VOLUME (${tf.toUpperCase()})</div>
                             <div class="text-[12px] font-bold text-white leading-none">$${formatCompactNumber(vol)}</div>
                         </div>
                         <div class="w-[65%]">
@@ -518,7 +544,7 @@
 
                     <div class="flex items-center gap-3">
                         <div class="w-[35%] text-left">
-                            <div class="text-[9px] ds-text-gray uppercase tracking-wide mb-0.5">MAKERS</div>
+                            <div class="text-[9px] ds-text-gray uppercase tracking-wide mb-0.5">MAKERS (${tf.toUpperCase()})</div>
                             <div class="text-[12px] font-bold text-white leading-none">${totalMakers.toLocaleString()}</div>
                         </div>
                         <div class="w-[65%]">
