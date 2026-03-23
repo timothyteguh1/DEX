@@ -2,21 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
-    // Konstanta Role & Status (Sangat penting untuk standar industri)
-    public const ROLE_ADMIN = 'admin';
-    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN  = 'admin';
+    public const ROLE_USER   = 'user';
 
-    public const STATUS_PENDING = 'pending';
+    public const STATUS_PENDING  = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
+    public const STATUS_FAILED   = 'failed';
 
     protected $fillable = [
         'name',
@@ -37,11 +38,10 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
-    // Helper Methods
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
@@ -51,6 +51,7 @@ class User extends Authenticatable
     {
         return $this->status === self::STATUS_APPROVED;
     }
+
     public function coins()
     {
         return $this->hasMany(Coin::class);

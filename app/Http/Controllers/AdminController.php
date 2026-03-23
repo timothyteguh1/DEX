@@ -4,47 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    // Menampilkan halaman dashboard admin
     public function index()
-{
-    $users = User::where('role', 'user')->orderBy('created_at', 'desc')->get();
-    
-    // Ambil teks pengaturan saat ini
-    $registerInfo = \App\Models\Setting::where('key', 'register_info')->first()->value 
-        ?? 'Silakan transfer biaya registrasi sebesar Rp 150.000 ke rekening BCA 123456789 a/n Blokpedia, lalu unggah bukti transfer pada form di bawah ini.';
+    {
+        // AUTO-FAILED: User yang belum verifikasi email lebih dari 1 JAM
+        // Email ngawur = tidak bisa klik link = otomatis gagal setelah 1 jam
+        User::where('role', 'user')
+            ->where('status', User::STATUS_PENDING)
+            ->whereNull('email_verified_at')
+            ->where('created_at', '<=', now()->subHour())
+            ->update(['status' => User::STATUS_FAILED]);
 
-    return view('admin.dashboard', compact('users', 'registerInfo'));
-}
+        $users = User::where('role', 'user')->orderBy('created_at', 'desc')->get();
 
-    // Mengubah status ACC / Reject
+        $registerInfo = \App\Models\Setting::where('key', 'register_info')->first()->value
+            ?? 'Silakan transfer biaya registrasi sebesar Rp 150.000 ke rekening BCA 123456789 a/n Blokpedia, lalu unggah bukti transfer pada form di bawah ini.';
+
+        return view('admin.dashboard', compact('users', 'registerInfo'));
+    }
+
     public function updateStatus(Request $request, User $user)
     {
         $request->validate([
-            'status' => 'required|in:pending,approved,rejected'
+            'status' => 'required|in:pending,approved,rejected,failed'
         ]);
 
         $user->update(['status' => $request->status]);
 
         return back()->with('success', 'Status untuk ' . $user->name . ' berhasil diubah menjadi ' . strtoupper($request->status));
     }
+
     public function updateSettings(Request $request)
-{
-    $request->validate([
-        'register_info' => 'required|string'
-    ]);
+    {
+        $request->validate([
+            'register_info' => 'required|string'
+        ]);
 
-    // Simpan atau update ke database
-    \App\Models\Setting::updateOrCreate(
-        ['key' => 'register_info'],
-        ['value' => $request->register_info]
-    );
+        \App\Models\Setting::updateOrCreate(
+            ['key' => 'register_info'],
+            ['value' => $request->register_info]
+        );
 
-    return back()->with('success', 'Pengaturan Informasi Pendaftaran berhasil diperbarui!');
-}
-
-
+        return back()->with('success', 'Pengaturan Informasi Pendaftaran berhasil diperbarui!');
+    }
 }

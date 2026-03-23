@@ -1,0 +1,20 @@
+# ============================================================
+# Tambahkan / update bagian ini di file .env kamu
+# ============================================================
+
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=emailkamu@gmail.com
+MAIL_PASSWORD=xxxx_xxxx_xxxx_xxxx
+MAIL_FROM_ADDRESS="emailkamu@gmail.com"
+MAIL_FROM_NAME="Blockped"
+
+# CATATAN GMAIL:
+# MAIL_PASSWORD bukan password Gmail biasa.
+# Gunakan "App Password" dari Google:
+# 1. Buka myaccount.google.com
+# 2. Security → 2-Step Verification (aktifkan dulu)
+# 3. Security → App Passwords
+# 4. Generate → copy 16 karakter ke MAIL_PASSWORD
