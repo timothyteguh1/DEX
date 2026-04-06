@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ReferralCode;
 use App\Rules\IndonesianPhone;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterUserRequest;
@@ -35,6 +36,14 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
+        // Validasi tambahan: pastikan kode referral aktif (jika diisi)
+        if (!empty($validated['referral_code'])) {
+            $refCode = ReferralCode::where('code', $validated['referral_code'])->first();
+            if (!$refCode || !$refCode->is_active) {
+                return back()->withErrors(['referral_code' => 'Kode referral tidak aktif atau sudah dinonaktifkan.'])->withInput();
+            }
+        }
+
         session()->forget('captcha_result');
 
         $proofPath = $request->file('payment_proof')->store('proofs', 'public');
@@ -45,16 +54,12 @@ class AuthController extends Controller
             'no_hp'         => $validated['no_hp'],
             'password'      => Hash::make($validated['password']),
             'payment_proof' => $proofPath,
+            'referral_code' => $validated['referral_code'] ?? null,
         ]);
 
-        // Kirim email verifikasi
         event(new Registered($user));
-
-        // LOGIN otomatis setelah register agar link verifikasi di email bisa dipakai
-        // (Laravel EmailVerificationRequest butuh user sudah login)
         Auth::login($user);
 
-        // Arahkan ke halaman "Cek Email Anda" — BUKAN halaman login
         return redirect()->route('verification.notice')
             ->with('success', 'Pendaftaran berhasil! Silakan cek email Anda dan klik link verifikasi.');
     }
@@ -68,7 +73,6 @@ class AuthController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        // Cek verifikasi email — KECUALI admin atau user lama yang sudah approved
         if ($user && !$user->hasVerifiedEmail()) {
             $isAdmin       = $user->isAdmin();
             $isOldApproved = $user->status === User::STATUS_APPROVED;
@@ -92,7 +96,6 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
             }
 
-            // Status pending / rejected / failed
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -111,10 +114,8 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    // Halaman "Cek Email Anda"
     public function verificationNotice()
     {
-        // Kalau sudah verified, arahkan ke login
         if (Auth::check() && Auth::user()->hasVerifiedEmail()) {
             Auth::logout();
             request()->session()->invalidate();
@@ -126,7 +127,6 @@ class AuthController extends Controller
         return view('auth.verify-email');
     }
 
-    // Kirim ulang email verifikasi
     public function resendVerification(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {

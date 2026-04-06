@@ -4,12 +4,23 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CoinController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\SuperAdminController; // ← Import Controller Superadmin
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Middleware\IsAdmin;
-use App\Http\Middleware\IsSuperAdmin; // ← Import Middleware Superadmin
+use App\Http\Middleware\IsSuperAdmin;
 use App\Http\Middleware\CheckUserStatus;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Support\Facades\Auth;  
+use Illuminate\Support\Facades\Auth;
+
+// =============================================
+// SERVE STORAGE (fallback jika storage:link gagal)
+// =============================================
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    return response()->file($fullPath);
+})->where('path', '.*')->name('storage.serve');
 
 // =============================================
 // GUEST ROUTES
@@ -31,7 +42,7 @@ Route::middleware('auth')->group(function () {
         ->name('verification.notice');
 
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill(); 
+        $request->fulfill();
 
         Auth::logout();
         $request->session()->invalidate();
@@ -61,20 +72,33 @@ Route::middleware(['auth', CheckUserStatus::class])->group(function () {
 });
 
 // =============================================
-// ADMIN ROUTES
+// ADMIN ROUTES (admin + superadmin)
 // =============================================
 Route::middleware(['auth', IsAdmin::class])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::put('/user/{user}/status', [AdminController::class, 'updateStatus'])->name('admin.user.status');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+
+    // --- REFERRAL CODE (Admin & Superadmin bisa akses) ---
+    Route::get('/referral-codes', [AdminController::class, 'referralCodes'])->name('admin.referral-codes');
+    Route::post('/referral-codes', [AdminController::class, 'storeReferralCode'])->name('admin.referral-codes.store');
+    Route::put('/referral-codes/{referralCode}/toggle', [AdminController::class, 'toggleReferralCode'])->name('admin.referral-codes.toggle');
+    Route::delete('/referral-codes/{referralCode}', [AdminController::class, 'destroyReferralCode'])->name('admin.referral-codes.destroy');
+
+    // --- LAPORAN MEMBER (Admin & Superadmin bisa akses) ---
+    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
 });
 
 // =============================================
 // SUPERADMIN ROUTES
 // =============================================
-// Kita gunakan IsSuperAdmin::class (bukan string 'is_superadmin')
 Route::middleware(['auth', IsSuperAdmin::class])->prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/logs', [SuperAdminController::class, 'logs'])->name('logs');
     Route::delete('/users/{user}', [SuperAdminController::class, 'destroyUser'])->name('user.destroy');
     Route::put('/users/{user}/reset-password', [SuperAdminController::class, 'resetPassword'])->name('user.reset_password');
+
+    // --- KELOLA ADMIN (Hanya Superadmin) ---
+    Route::get('/admins', [SuperAdminController::class, 'manageAdmins'])->name('admins');
+    Route::post('/admins', [SuperAdminController::class, 'storeAdmin'])->name('admins.store');
+    Route::put('/admins/{user}', [SuperAdminController::class, 'updateAdmin'])->name('admins.update');
 });

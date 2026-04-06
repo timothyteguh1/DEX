@@ -22,14 +22,15 @@ class RegisterUserRequest extends FormRequest
             'no_hp'          => ['required', 'string', 'max:15', new IndonesianPhone],
             'password'       => ['required', 'confirmed', Password::defaults()],
 
-            // Fix upload: validasi hanya format & ukuran, TANPA cek dimensi/rasio
-            // max:5120 = 5MB agar gambar resolusi tinggi tetap bisa masuk
             'payment_proof'  => [
                 'required',
                 'file',
                 'mimes:jpeg,jpg,png,webp',
                 'max:5120',
             ],
+
+            // Referral code opsional, tapi kalau diisi harus valid & aktif
+            'referral_code'  => ['nullable', 'string', 'max:50', 'exists:referral_codes,code'],
 
             'captcha_answer' => ['required', 'numeric', new ValidCaptcha],
         ];
@@ -38,8 +39,9 @@ class RegisterUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'payment_proof.mimes' => 'File bukti harus berformat JPG, PNG, atau WEBP.',
-            'payment_proof.max'   => 'Ukuran file maksimal 5MB.',
+            'payment_proof.mimes'    => 'File bukti harus berformat JPG, PNG, atau WEBP.',
+            'payment_proof.max'      => 'Ukuran file maksimal 5MB.',
+            'referral_code.exists'   => 'Kode referral tidak valid atau tidak ditemukan.',
         ];
     }
 
@@ -49,6 +51,17 @@ class RegisterUserRequest extends FormRequest
             'captcha_answer' => 'verifikasi keamanan',
             'no_hp'          => 'nomor WhatsApp',
             'payment_proof'  => 'bukti transfer',
+            'referral_code'  => 'kode referral',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        // Auto uppercase referral code
+        if ($this->referral_code) {
+            $this->merge([
+                'referral_code' => strtoupper(trim($this->referral_code)),
+            ]);
+        }
     }
 }

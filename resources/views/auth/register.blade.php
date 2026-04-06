@@ -30,7 +30,6 @@
         {{-- Header --}}
         <div class="text-center mb-5">
             <h1 class="text-2xl font-extrabold tracking-tight flex items-center justify-center gap-2 mb-1">
-                {{-- Logo dengan fallback teks jika gambar tidak ada --}}
                 <span class="w-8 h-8 rounded-full bg-[#20d981]/20 border border-[#20d981]/50 flex items-center justify-center text-[#20d981] font-black text-sm overflow-hidden">
                     <img src="{{ asset('logo-blokpedia.png') }}"
                         class="w-full h-full object-cover rounded-full"
@@ -110,6 +109,15 @@
                     class="block w-full text-[11px] text-gray-400
                     file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-extrabold file:bg-[#20d981]/10 file:text-[#20d981] hover:file:bg-[#20d981]/20 file:transition-colors file:cursor-pointer
                     border border-gray-800 rounded-xl bg-[#05070a] focus:outline-none focus:ring-2 focus:ring-[#20d981]/50 transition-all cursor-pointer p-2">
+            </div>
+
+            {{-- REFERRAL CODE (BARU) --}}
+            <div class="group">
+                <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1 block group-focus-within:text-[#20d981] transition-colors">
+                    Kode Referral <span class="text-gray-600 normal-case font-normal">(opsional)</span>
+                </label>
+                <input type="text" name="referral_code" value="{{ old('referral_code') }}" placeholder="Masukkan kode referral jika ada"
+                    class="w-full bg-[#05070a] text-white border border-gray-800 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#20d981]/50 focus:border-[#20d981] transition-all placeholder-gray-700 uppercase font-mono tracking-wider">
             </div>
 
             {{-- Captcha --}}

@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'status',
         'payment_proof',
+        'referral_code',
     ];
 
     protected $hidden = [
@@ -45,7 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // =========================================================
-    // PASTIKAN FUNGSI-FUNGSI INI BERADA DI DALAM CLASS USER
+    // HELPER METHODS
     // =========================================================
 
     public function isSuperAdmin(): bool
@@ -76,4 +77,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ActivityLog::class);
     }
 
-} // <--- INI ADALAH KURUNG KURAWAL PENUTUP CLASS USER (JANGAN ADA KODE DI BAWAH INI)
+    // Relasi ke tabel referral_codes (kode yang dipakai user saat daftar)
+    public function referralCodeData()
+    {
+        return $this->belongsTo(ReferralCode::class, 'referral_code', 'code');
+    }
+
+} // <--- KURUNG KURAWAL PENUTUP CLASS USER
