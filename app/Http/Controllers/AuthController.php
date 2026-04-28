@@ -46,14 +46,19 @@ class AuthController extends Controller
 
         session()->forget('captcha_result');
 
-        $proofPath = $request->file('payment_proof')->store('proofs', 'public');
+        // REVISI CLOUDINARY: Ganti kode local storage menjadi Cloudinary
+        // (kode lama: $proofPath = $request->file('payment_proof')->store('proofs', 'public');)
+
+        $uploadedFileUrl = cloudinary()->upload($request->file('payment_proof')->getRealPath(), [
+            'folder' => 'proofs'
+        ])->getSecurePath();
 
         $user = User::create([
-            'name'          => $validated['name'],
-            'email'         => $validated['email'],
-            'no_hp'         => $validated['no_hp'],
-            'password'      => Hash::make($validated['password']),
-            'payment_proof' => $proofPath,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'no_hp' => $validated['no_hp'],
+            'password' => Hash::make($validated['password']),
+            'payment_proof' => $uploadedFileUrl, // Simpan URL Cloudinary ke Database
             'referral_code' => $validated['referral_code'] ?? null,
         ]);
 
@@ -67,14 +72,14 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         $user = User::where('email', $credentials['email'])->first();
 
         if ($user && !$user->hasVerifiedEmail()) {
-            $isAdmin       = $user->isAdmin();
+            $isAdmin = $user->isAdmin();
             $isOldApproved = $user->status === User::STATUS_APPROVED;
 
             if (!$isAdmin && !$isOldApproved) {
@@ -100,10 +105,10 @@ class AuthController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            $pesanError = match($user->status) {
+            $pesanError = match ($user->status) {
                 User::STATUS_PENDING => 'Akun Anda sedang ditinjau oleh Admin. Mohon tunggu.',
-                User::STATUS_FAILED  => 'Akun Anda gagal karena email tidak diverifikasi tepat waktu. Silakan hubungi Admin.',
-                default              => 'Maaf, pendaftaran Anda ditolak. Silakan hubungi Admin.',
+                User::STATUS_FAILED => 'Akun Anda gagal karena email tidak diverifikasi tepat waktu. Silakan hubungi Admin.',
+                default => 'Maaf, pendaftaran Anda ditolak. Silakan hubungi Admin.',
             };
 
             return back()->withErrors(['email' => $pesanError]);
@@ -152,12 +157,12 @@ class AuthController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'no_hp'    => ['required', 'string', 'max:15', new IndonesianPhone],
+            'name' => ['required', 'string', 'max:255'],
+            'no_hp' => ['required', 'string', 'max:15', new IndonesianPhone],
             'password' => ['nullable', 'min:6', 'confirmed'],
         ]);
 
-        $user->name  = $validated['name'];
+        $user->name = $validated['name'];
         $user->no_hp = $validated['no_hp'];
 
         if (!empty($validated['password'])) {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin') - Blockped</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -52,7 +52,7 @@
         <div class="p-5 pb-4 border-b border-gray-800/50">
             <div class="flex items-center gap-2.5">
                 <span class="w-9 h-9 rounded-xl bg-[#20d981]/15 border border-[#20d981]/30 flex items-center justify-center overflow-hidden shrink-0">
-                    <img src="{{ asset('logo-blokpedia.png') }}" class="w-full h-full object-cover" alt="B"
+                    <img src="{{ asset('logo-system.png') }}" class="w-full h-full object-cover" alt="B"
                         onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=\'text-[#20d981] font-black text-sm\'>B</span>'">
                 </span>
                 <div>

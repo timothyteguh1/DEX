@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar - Blockped Terminal</title>
+    
+    {{-- UPDATE FAVICON --}}
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -27,11 +31,11 @@
 
     <div class="w-full max-w-lg bg-[#0f131a]/80 backdrop-blur-xl border border-gray-800/60 p-6 md:p-8 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.5)] relative z-10 mx-4">
 
-        {{-- Header --}}
+        {{-- UPDATE: Header dengan logo-system.png agar konsisten dengan halaman Login --}}
         <div class="text-center mb-5">
             <h1 class="text-2xl font-extrabold tracking-tight flex items-center justify-center gap-2 mb-1">
-                <span class="w-8 h-8 rounded-full bg-[#20d981]/20 border border-[#20d981]/50 flex items-center justify-center text-[#20d981] font-black text-sm overflow-hidden">
-                    <img src="{{ asset('logo-blokpedia.png') }}"
+                <span class="w-8 h-8 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-yellow-500 font-black text-sm overflow-hidden shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                    <img src="{{ asset('logo-system.png') }}"
                         class="w-full h-full object-cover rounded-full"
                         alt="B"
                         onerror="this.style.display='none'; this.parentNode.innerText='B'">
@@ -99,19 +103,25 @@
                 </div>
             </div>
 
-            {{-- Upload --}}
+            {{-- Upload & Preview (REVISI) --}}
             <div class="group">
                 <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1.5 block group-focus-within:text-[#20d981] transition-colors">
                     Upload Bukti / Follow
                     <span class="text-gray-600 normal-case font-normal">(JPG/PNG/WEBP, maks 5MB)</span>
                 </label>
-                <input type="file" name="payment_proof" accept=".jpg,.jpeg,.png,.webp" required
+                {{-- Tambah ID "payment_proof" untuk ditangkap Javascript --}}
+                <input type="file" name="payment_proof" id="payment_proof" accept=".jpg,.jpeg,.png,.webp" required
                     class="block w-full text-[11px] text-gray-400
                     file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-extrabold file:bg-[#20d981]/10 file:text-[#20d981] hover:file:bg-[#20d981]/20 file:transition-colors file:cursor-pointer
                     border border-gray-800 rounded-xl bg-[#05070a] focus:outline-none focus:ring-2 focus:ring-[#20d981]/50 transition-all cursor-pointer p-2">
+                
+                {{-- Container Preview Gambar --}}
+                <div id="preview-container" class="mt-3 hidden">
+                    <img id="image-preview" src="" alt="Preview" class="w-full h-auto max-h-48 object-cover rounded-xl border border-gray-700 shadow-md">
+                </div>
             </div>
 
-            {{-- REFERRAL CODE (BARU) --}}
+            {{-- REFERRAL CODE --}}
             <div class="group">
                 <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mb-1 block group-focus-within:text-[#20d981] transition-colors">
                     Kode Referral <span class="text-gray-600 normal-case font-normal">(opsional)</span>
@@ -155,5 +165,22 @@
         </div>
     </div>
 
+    {{-- REVISI: Script untuk memunculkan preview gambar --}}
+    <script>
+        document.getElementById('payment_proof').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const previewContainer = document.getElementById('preview-container');
+            const imagePreview = document.getElementById('image-preview');
+
+            if (file) {
+                // Buat URL sementara untuk gambar yang dipilih
+                imagePreview.src = URL.createObjectURL(file);
+                previewContainer.classList.remove('hidden'); // Tampilkan div preview
+            } else {
+                imagePreview.src = "";
+                previewContainer.classList.add('hidden'); // Sembunyikan jika batal pilih gambar
+            }
+        });
+    </script>
 </body>
 </html>

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Blockped Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {{-- Favicon sudah disesuaikan dengan tahap 2 --}}
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -27,9 +28,16 @@
 
     <div class="w-full max-w-md bg-[#0f131a]/80 backdrop-blur-xl border border-gray-800/60 p-10 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.4)] relative z-10 transform transition-all hover:border-gray-700/80">
         
+        {{-- UPDATE: Header Logo dengan logo-system.png dan warna emas --}}
         <div class="text-center mb-10">
             <h1 class="text-4xl font-extrabold tracking-tight flex items-center justify-center gap-3 mb-2">
-                <img src="{{ asset('logo-blokpedia.png') }}" class="w-8 h-8 rounded-full" alt="Blockped Icon"> BLOCKPED
+                <span class="w-10 h-10 rounded-full bg-yellow-500/20 border border-yellow-500/50 flex items-center justify-center text-yellow-500 font-black text-sm overflow-hidden shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+                    <img src="{{ asset('logo-system.png') }}" 
+                         class="w-full h-full object-cover rounded-full" 
+                         alt="B"
+                         onerror="this.style.display='none'; this.parentNode.innerText='B'">
+                </span>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">BLOCKPED</span>
             </h1>
             <p class="text-gray-500 font-medium text-sm">Akses Private Dashboard Terminal</p>
         </div>

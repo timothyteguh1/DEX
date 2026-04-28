@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blockped - Dashboard Trading</title>
-    <link rel="icon" type="image/png" href="{{ asset('logo-blokpedia.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -107,7 +107,7 @@
         
         <div class="flex items-center gap-3 w-full md:w-1/3 justify-between md:justify-start">
             <h1 class="text-xl font-black text-white tracking-wide flex items-center gap-2">
-                <img src="{{ asset('logo-blokpedia.png') }}" class="h-7 w-auto" alt="Blockped Terminal">
+                <img src="{{ asset('logo-sidebar.png') }}" class="w-12 h-12 w-auto "  alt="Blockped Terminal">
             </h1>
             <span class="text-[9px] bg-green-900/30 text-[#20d981] border border-green-800 px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-widest font-bold">
                 <span class="w-1.5 h-1.5 rounded-full bg-[#20d981] animate-pulse"></span> Live
