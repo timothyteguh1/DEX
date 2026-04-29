@@ -106,7 +106,7 @@
                             {{-- Bukti --}}
                             <td class="px-5 py-4 text-center">
                                 @if ($user->payment_proof)
-                                    <button onclick="openModal('{{ asset('storage/' . $user->payment_proof) }}')"
+                                    <button onclick="openModal('{{ str_starts_with($user->payment_proof, 'http') ? $user->payment_proof : asset('storage/' . $user->payment_proof) }}')"
                                         class="text-blue-400 hover:text-blue-300 text-xs font-bold underline underline-offset-2 transition">
                                         Lihat
                                     </button>

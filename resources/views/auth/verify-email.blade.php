@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifikasi Email - Blockped</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #05070a; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -22,7 +22,7 @@
         {{-- Logo --}}
         <div class="flex items-center justify-center gap-2 mb-6">
             <span class="w-10 h-10 rounded-full bg-[#20d981]/20 border border-[#20d981]/50 flex items-center justify-center text-[#20d981] font-black overflow-hidden">
-                <img src="{{ asset('logo-blokpedia.png') }}" class="w-full h-full object-cover rounded-full" alt="B"
+                <img src="{{ asset('logo-system.png') }}" class="w-full h-full object-cover rounded-full" alt="B"
                     onerror="this.style.display='none'; this.parentNode.innerText='B'">
             </span>
             <span class="font-extrabold text-white text-xl tracking-wide">BLOCKPED</span>

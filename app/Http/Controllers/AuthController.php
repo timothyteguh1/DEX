@@ -32,7 +32,7 @@ class AuthController extends Controller
         return view('auth.register', compact('registerInfo', 'num1', 'num2'));
     }
 
-    public function register(RegisterUserRequest $request)
+   public function register(RegisterUserRequest $request)
     {
         $validated = $request->validated();
 
@@ -46,18 +46,26 @@ class AuthController extends Controller
 
         session()->forget('captcha_result');
 
-        // REVISI CLOUDINARY: Ganti kode local storage menjadi Cloudinary
-        // (kode lama: $proofPath = $request->file('payment_proof')->store('proofs', 'public');)
+        // REVISI CLOUDINARY (BYPASS PACKAGE BUG): 
+        // Langsung menggunakan class bawaan Cloudinary dengan membaca .env
+        try {
+            $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+            
+            $uploadResult = $cloudinary->uploadApi()->upload($request->file('payment_proof')->getRealPath(), [
+                'folder' => 'proofs'
+            ]);
+            
+            $uploadedFileUrl = $uploadResult['secure_url'];
 
-        $uploadedFileUrl = cloudinary()->upload($request->file('payment_proof')->getRealPath(), [
-            'folder' => 'proofs'
-        ])->getSecurePath();
+        } catch (\Exception $e) {
+            return back()->withErrors(['payment_proof' => 'Gagal upload ke Cloudinary. Error: ' . $e->getMessage()])->withInput();
+        }
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'no_hp' => $validated['no_hp'],
-            'password' => Hash::make($validated['password']),
+            'name'          => $validated['name'],
+            'email'         => $validated['email'],
+            'no_hp'         => $validated['no_hp'],
+            'password'      => Hash::make($validated['password']),
             'payment_proof' => $uploadedFileUrl, // Simpan URL Cloudinary ke Database
             'referral_code' => $validated['referral_code'] ?? null,
         ]);
